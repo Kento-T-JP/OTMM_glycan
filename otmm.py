@@ -133,10 +133,10 @@ def main(argv):
 
   """
   データ量の制限
-  とりあえず正しく実行できれば良いので、データを101個に減らす。
+  とりあえず正しく実行できれば良いので、データを201個に減らす。
   """
-  df = df.head(9) # データを101個にしてみる
-  # df = df
+  df = df.head(201) # データを201個にしてみる
+  # df = df # データ全部
 
   # プログラム的にIUPAC Condensedが2番目に来ること！（row[2]と記述している部分があるから）
   df = df.drop(['Motifs', 'Subsumption Level', 'ChEBI', 'Monoisotopic Mass', 'Species'], axis=1)
@@ -218,6 +218,7 @@ def main(argv):
   b = pd.DataFrame(matrix_B, index=state_set, columns=label_set)
 
   """初期の尤度"""
+  print("\nLikelihood using initial params")
   likelihood = alg.calc_likelihood(df, pi, a_a, a_b, b, state_set)
   L = sum(likelihood) # π（全てを掛け合わせる）なのでsumでよい
 
@@ -226,9 +227,12 @@ def main(argv):
 
   gc.collect() # メモリの開放（メモリリーク対策）
 
+  print("\nLearning")
   new_pi, new_a_a, new_a_b, new_b = alg.EM(df, pi, a_a, a_b, b, state_set, label_set, L, epsilon)
-  print("pi", pi)
   print("pi updated", new_pi)
+  print("α updated", new_a_a)
+  print("β updated", new_a_b)
+  print("b updated", new_b)
 
   """
   Parsing

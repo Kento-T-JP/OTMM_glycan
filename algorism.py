@@ -66,7 +66,6 @@ def calc_back(m, j, up, back, a_b, state_set):
     return up.at[m, j.no] + total
 
 def calc_likelihood(df, pi, a_a, a_b, b, state_set):
-  print("<likelihood>")
   i = 0
   likelihood = []
   for row in df.itertuples():
@@ -191,7 +190,11 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     mu_pi_t = np.zeros(len(state_set))
 
     # 6 of pseudo code
+    count = 0
     for row in df.itertuples():
+      if count%100 == 0:
+        print("Number of glycans in learning", count)
+
       # 7 of pseudo code
       glycan = row[2]
 
@@ -362,6 +365,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
       del up, back, forward, down
       del mu_pi_u, mu_aa_u, mu_ab_u, mu_b_u
       gc.collect()
+      count += 1
 
     # update a_a
     # print(mu_aa_t)
@@ -426,5 +430,5 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     # L_all.append(sum(L_T)) # 現在のパラメータを使って計算をしたいので
     print("Likelihood", L_all[t])
     print("Difference of the likelihoods", L_all[t] - L_all[t-1], "\n")
-    if abs(L_all[t] - L_all[t-1]) < epsilon or t == 3: # 止まらなかったら困るのでとりあえずt==5で止める
+    if abs(L_all[t] - L_all[t-1]) < epsilon or t == 3: # 止まらなかったら困るのでとりあえずt==3で止める
       return pi, a_a, a_b, b
