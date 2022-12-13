@@ -166,6 +166,9 @@ def main(argv):
     for node in glycan:
       label_set.add(node.name)
 
+  # pandas1.5以上はlistに
+  label_set = list(label_set)
+
   print("Number of labels:", len(label_set))
   # print(label_set)
 
@@ -173,6 +176,9 @@ def main(argv):
   state_set = set()
   for i in range(n):
     state_set.add(i)
+
+  # pandas1.5以上はlistに
+  state_set = list(state_set)
 
   print("Number of states:", len(state_set))
   # print(state_set)

@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import copy # Pythonでは関数においてミュータブルな変数は参照渡しのため
 import gc
-import re
 
 """
 log(x+y)の近似
