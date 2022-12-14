@@ -214,8 +214,8 @@ def branch(result, j, nodes, parent_index, parent, j_parent):
         parent = copy.deepcopy(parent) # 今の親を維持
         j_parent = copy.deepcopy(j_parent) # # 今の親を維持
       else: # 1つ目の分岐のとき
-        parent = result[j+1] # 1つ右が親（参照渡しを利用して全体に影響を与える）
-        j_parent = j+1 # 1つ右が親（参照渡しを利用して全体に影響を与える）
+        parent = result[j+1] # 1つ右が親（参照渡しを利用してglobalに影響を与える）
+        j_parent = j+1 # 1つ右が親（参照渡しを利用してglobalに影響を与える）
       # print(j)
       # print("\n＜新たなbranch＞")
       j, parent_index = branch(result, j, nodes, parent_index, parent, j_parent) # 再帰

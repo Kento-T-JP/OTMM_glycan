@@ -434,5 +434,5 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     # L_all.append(sum(L_T)) # 現在のパラメータを使って計算をしたいので
     print("Likelihood", L_all[t])
     print("Difference of the likelihoods", L_all[t] - L_all[t-1], "\n")
-    if abs(L_all[t] - L_all[t-1]) < epsilon or t == 5: # 止まらなかったら困るのでとりあえずt==5で止める
+    if abs(L_all[t] - L_all[t-1]) < epsilon: # or t == 5: # 止まらなかったら困るのでとりあえずt==5で止める
       return pi, a_a, a_b, b
