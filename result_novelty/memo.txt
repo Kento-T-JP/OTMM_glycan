@@ -1,1 +1,2 @@
 This folder is for saving results.
+I the copy of Glycan at shinomi lab named "OTMM_glycan" at kento-T-JP private repository.
