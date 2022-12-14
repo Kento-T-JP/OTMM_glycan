@@ -32,6 +32,7 @@ def parse_glycan(glycan, state_set, pi, a_a, a_b, b):
     z = most_likely_state(glycan, state_set, sugar_id, pi, a_a, a_b, b, phi_up, phi_back)
     for node in glycan:
         print("Node:", node.name, node.no,"Most likely state:", z[node.no])
+    print()
 
 """
 Calculate psi

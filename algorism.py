@@ -13,7 +13,7 @@ sum of logs
 # math.exp(0) = 1なので条件分岐する必要ない
 def smoothmax(x, y):
   try:
-    return x + math.log(1 + math.exp(y-x))
+    return x + math.log(1 + math.exp(y-x)) # exp(±710)くらいでエラーが発生
   except: 
     # logsumexpと同じ処理
     if y-x > 0: # e^(y-x)が非常に大きくなるので1+ e^(y-x)≒e^(y-x)とする
@@ -70,8 +70,10 @@ def calc_likelihood(df, pi, a_a, a_b, b, state_set):
   likelihood = []
   for row in df.itertuples():
     # count how many glycans did we use
-    if i%100 == 0:
+    if i == 0:
       print("Number of glycans in likelihood", i)
+    elif (i+1)%100 == 0:
+      print("Number of glycans in likelihood", i+1) # 0からインデックスが始まるため
 
     glycan = row[2]
 
@@ -192,8 +194,10 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     # 6 of pseudo code
     count = 0
     for row in df.itertuples():
-      if count%100 == 0:
-        print("Number of glycans in learning", count)
+      if count == 0:
+        print("Number of glycans in likelihood", count)
+      elif (count+1)%100 == 0:
+        print("Number of glycans in likelihood", count+1) # 0からインデックスが始まるため
 
       # 7 of pseudo code
       glycan = row[2]
@@ -430,5 +434,5 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     # L_all.append(sum(L_T)) # 現在のパラメータを使って計算をしたいので
     print("Likelihood", L_all[t])
     print("Difference of the likelihoods", L_all[t] - L_all[t-1], "\n")
-    if abs(L_all[t] - L_all[t-1]) < epsilon or t == 3: # 止まらなかったら困るのでとりあえずt==3で止める
+    if abs(L_all[t] - L_all[t-1]) < epsilon or t == 5: # 止まらなかったら困るのでとりあえずt==5で止める
       return pi, a_a, a_b, b
