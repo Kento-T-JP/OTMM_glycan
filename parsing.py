@@ -28,10 +28,10 @@ def parse_glycan(glycan, state_set, pi, a_a, a_b, b):
             phi_back.at[state, node.no] = calc_phi_back(state, node, phi_up, phi_back, a_b, state_set)
 
     p = most_likely_prob(pi, phi_up, state_set)
-    print("the probabilitythat all labels are outputted along the most likely state transition:", p)
+    print("The probabilitythat all labels are outputted along the most likely state transition:", p)
     z = most_likely_state(glycan, state_set, sugar_id, pi, a_a, a_b, b, phi_up, phi_back)
     for node in glycan:
-        print("node:", node.name, node.no,"most likely state:", z[node.no])
+        print("Node:", node.name, node.no,"Most likely state:", z[node.no])
 
 """
 Calculate psi
