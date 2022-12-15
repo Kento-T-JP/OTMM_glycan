@@ -10,6 +10,7 @@ import re
 import sys
 import gc
 import time
+import os
 
 import preprocessor as pp
 import algorism as alg
@@ -255,21 +256,25 @@ def main(argv):
   glycan = df["IUPAC Condensed"][0] # glycan[0]
   parsing.parse_glycan(glycan, state_set, new_pi, new_a_a, new_a_b, new_b)
 
+  # 結果を格納するディレクトリを作成
+  dir_path =  'result'+'_'+'novelty'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
+  os.makedirs(dir_path, exist_ok=True)
+  os.chdir(dir_path)  # 相対パス
+
   # output (新規性)
-  time_name = './result_novelty'+'\\'+'time'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))+'.txt'
+  time_name = 'time'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))+'.txt'
   with open(time_name, 'w') as f:
     f.write("Time in learning: "+str(end-start)+ " seconds")
 
   new_pi = new_pi.reshape(1, -1) # to output beautifully
-  pi_name = './result_novelty'+'\\'+'pi'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'.csv'
+  pi_name = 'pi'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'.csv'
   np.savetxt(pi_name, new_pi)
-  a_a_name = './result_novelty'+'\\'+'a_a'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(state_set))+'.csv'
+  a_a_name = 'a_a'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(state_set))+'.csv'
   np.savetxt(a_a_name, new_a_a)
-  a_b_name = './result_novelty'+'\\'+'a_b'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(state_set))+'.csv'
+  a_b_name = 'a_b'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(state_set))+'.csv'
   np.savetxt(a_b_name, new_a_b)
-  b_name = './result_novelty'+'\\'+'b'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))+'.csv'
+  b_name = 'b'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))+'.csv'
   new_b.to_csv(b_name)
-
   return 0
 
 if __name__ == '__main__':
