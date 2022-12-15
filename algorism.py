@@ -21,7 +21,7 @@ def smoothmax(x, y):
     elif y-x < 0:
       return x
 
-# math.expの指数の範囲を狭めてみたが特に変化なし
+# math.expの指数の範囲を狭めたが特に変化なし
 # def smoothmax(x, y):
 #   if abs(y-x) <= 20:
 #     return x + math.log(1 + math.exp(y-x))
