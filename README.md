@@ -1,6 +1,6 @@
 # Glycan
-This is a repository for OTMM in glycoinfomatics.
+This is a repository regarding OTMM in glycoinfomatics.
 
 All of the programs are written in Python.
 
-Kento Totsuka uses the repository for his senior thesis.
+Used for the senior thesis.
