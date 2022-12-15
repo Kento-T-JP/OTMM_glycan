@@ -50,7 +50,7 @@ def calc_up(q, p, back, a_a, b, state_set):
     return b.at[q, p.name] + total
 
 def calc_back(m, j, up, back, a_b, state_set):
-  #calculate up
+  #calculate back
   # print(back)
   if j.younger == None: # youngest child and root
     if up.at[m, j.no] == 100:
@@ -109,6 +109,7 @@ def calc_likelihood(df, pi, a_a, a_b, b, state_set):
     likelihood.append(like)
     i += 1
 
+    # メモリリーク（対策）
     del up, back
     gc.collect()
   
@@ -140,7 +141,6 @@ def calc_forward(l, j, down, forward, up, a_a, a_b, b_f, state_set):
     for m in state_set:
       if forward.at[m, j.elder.no] == 100:
         print("100(unexpected value) found at forward!!")
-
       if total == 0:
         total = a_b[m][l] + forward.at[m, j.elder.no] + up.at[m, j.elder.no] # 対数なので足し算は掛け算
       else:
@@ -149,7 +149,7 @@ def calc_forward(l, j, down, forward, up, a_a, a_b, b_f, state_set):
 
 """Downward probability"""
 def calc_down(l, j, forward, back, pi, a_b, state_set):
-  #calculate forward
+  #calculate downward
   if j.parent == None and j.elder == None and j.younger == None: # when j == root
     return pi[l]
   elif j.younger == None:
@@ -168,16 +168,17 @@ def calc_down(l, j, forward, back, pi, a_b, state_set):
     return forward.at[l, j.no] + total
 
 """Learning（EMアルゴリズム）"""
-def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon):
+def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label_set, L, epsilon):
   t = 0  
   L_all = [] # 全体の期待値
   print("likelihood before learning", L, "\n")
   L_all.append(L)
 
-  pi = copy.deepcopy(pi_copy)
-  a_a = copy.deepcopy(a_a_copy)
-  a_b = copy.deepcopy(a_b_copy)
-  b = copy.deepcopy(b_copy)
+  # 参照渡しのため値を別のアドレス（変数）にコピー
+  pi = copy.deepcopy(pi_original)
+  a_a = copy.deepcopy(a_a_original)
+  a_b = copy.deepcopy(a_b_original)
+  b = copy.deepcopy(b_original)
 
   while True:
     print("t(epoc)=", t)
@@ -187,8 +188,8 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
     # initialize mu of T_u
     mu_aa_t = np.zeros((len(state_set), len(state_set)))
     mu_ab_t = np.zeros((len(state_set), len(state_set)))
-    B1 = np.zeros((len(state_set), len(label_set))) # この変数名を同じにするとpandasも同じ変数になる
-    mu_b_t = pd.DataFrame(B1, index=state_set, columns=label_set)
+    B_t = np.zeros((len(state_set), len(label_set))) # この変数名を同じにするとpandasも同じ変数になる
+    mu_b_t = pd.DataFrame(B_t, index=state_set, columns=label_set)
     mu_pi_t = np.zeros(len(state_set))
 
     # 6 of pseudo code
@@ -205,8 +206,8 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
       # initialize mu of the glycan
       mu_aa_u = np.zeros((len(state_set), len(state_set)))
       mu_ab_u = np.zeros((len(state_set), len(state_set)))
-      B2 = np.zeros((len(state_set), len(label_set))) # この変数名を同じにするとpandasも同じ変数になる
-      mu_b_u = pd.DataFrame(B2, index=state_set, columns=label_set)
+      B_u = np.zeros((len(state_set), len(label_set))) # この変数名を同じにするとpandasも同じ変数になる
+      mu_b_u = pd.DataFrame(B_u, index=state_set, columns=label_set)
       mu_pi_u = np.zeros(len(state_set))
 
       # make upward prob
@@ -269,7 +270,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
       # calculate mu_aa_u[q][l]
       for q in state_set:
         for l in state_set:
-          exist_child = False
+          exist_child = False # 該当するchildがいるかどうか
           total = 0
           for p in glycan:
             if p.child != None:
@@ -279,7 +280,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
                 total = down.at[q, p.no] + b.at[q, p.name] + a_a[q][l] + back.at[l, p.child.no]
               else:
                 total = copy.deepcopy(smoothmax(total, down.at[q, p.no] + b.at[q, p.name] + a_a[q][l] + back.at[l, p.child.no]))
-          if exist_child == True:
+          if exist_child == True or total != 0: # 本来total×L_uなのでtotal=0の時は0（対数変換によって掛け算が足し算になっている）
             mu_aa_u[q][l] = total - L_u # 対数の引き算は割り算
           else:
             mu_aa_u[q][l] = 0 # 0にしてパラメータの更新に影響が出ないようにする
@@ -288,7 +289,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
       # calculate mu_ab_u[q][l]
       for q in state_set:
         for l in state_set:
-          exist_younger = False
+          exist_younger = False # younger siblingがいるかどうか
           total = 0
           for j in glycan:
             if j.younger != None: # X(j) != empty set
@@ -298,7 +299,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
                 total = forward.at[q, j.no] + a_b[q][l] + back.at[l, j.younger.no] + up.at[q, j.no]
               else:
                 total = copy.deepcopy(smoothmax(total, forward.at[q, j.no] + a_b[q][l] + back.at[l, j.younger.no] + up.at[q, j.no]))
-          if exist_younger == True:
+          if exist_younger == True or total != 0:
             mu_ab_u[q][l] = total - L_u # 対数の引き算は割り算
           else:
             mu_ab_u[q][l] = 0
@@ -315,7 +316,7 @@ def EM(df, pi_copy, a_a_copy, a_b_copy, b_copy, state_set, label_set, L, epsilon
                 total = down.at[m, i.no] + up.at[m, i.no]
               else:
                 total = copy.deepcopy(smoothmax(total, down.at[m, i.no] + up.at[m, i.no]))
-          if exist_oh == True:
+          if exist_oh == True or total != 0:
             mu_b_u.at[m, o_h] = total - L_u # 対数の引き算は割り算
           else:
             mu_b_u.at[m, o_h] = 0 # 入力データには単糖o_hが存在しないので期待値は0

@@ -39,7 +39,7 @@ Calculate psi
 top-down and left-to-right manner
 """
 def calc_phi_up(q, p, phi_back, a_a, b, state_set):
-  #calculate up
+  #calculate phi up
   if p.child == None:
     return b.at[q, p.name]
   else:
@@ -53,8 +53,7 @@ def calc_phi_up(q, p, phi_back, a_a, b, state_set):
     return b.at[q, p.name] + max(prob)
 
 def calc_phi_back(m, j, phi_up, phi_back, a_b, state_set):
-  #calculate up
-  # print(back)
+  #calculate phi back
   if j.younger == None: # youngest
     if phi_up.at[m, j.no] == 0:
       print("ok1") # 計算していないphi_upを使っている状態
