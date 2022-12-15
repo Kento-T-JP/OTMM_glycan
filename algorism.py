@@ -196,9 +196,9 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
     count = 0
     for row in df.itertuples():
       if count == 0:
-        print("Number of glycans in likelihood", count)
+        print("Number of glycans in learning", count)
       elif (count+1)%100 == 0:
-        print("Number of glycans in likelihood", count+1) # 0からインデックスが始まるため
+        print("Number of glycans in learning", count+1) # 0からインデックスが始まるため
 
       # 7 of pseudo code
       glycan = row[2]
