@@ -366,5 +366,17 @@ def set_instance(nodes):
       for instance in nodes:
         if instance.no == node.elder_num:
           node.elder = instance # elderのインスタンスを入れる
-
   return nodes
+
+def find_mark(row):
+  i = 0
+  glycan = row["IUPAC Condensed"]
+  for node in glycan:
+    # if node.child == None and node.elder == None: # 厳密にはyoungerがいるのでOTMMでは末端ではない
+    #   node.leaf_order = i
+    #   i += 1
+    if node.child == None and node.younger == None: # これが厳密な末端の葉
+      node.leaf_order = i
+      i += 1
+  row["IUPAC Condensed"] = glycan
+  return row

@@ -147,20 +147,7 @@ def main(argv):
 
   df = df.apply(make_OTMM, axis=1)
 
-  def find_mark(row):
-    i = 0
-    glycan = row["IUPAC Condensed"]
-    for node in glycan:
-      # if node.child == None and node.elder == None: # 厳密にはyoungerがいるのでOTMMでは末端ではない
-      #   node.leaf_order = i
-      #   i += 1
-      if node.child == None and node.younger == None: # これが厳密な末端の葉
-        node.leaf_order = i
-        i += 1
-    row["IUPAC Condensed"] = glycan
-    return row
-
-  df = df.apply(find_mark, axis=1)
+  df = df.apply(pp.find_mark, axis=1)
 
   """アルゴリズム"""
   label_set = set()
