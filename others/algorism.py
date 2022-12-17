@@ -1,13 +1,14 @@
 """
 主にlikelihoodとlearningで使用するアルゴリズム
 新規性のある研究も既存の研究もこの部分は同じ
+全てfloatで計算
 """
 
 import math
 import numpy as np
 import pandas as pd
 import copy # Pythonでは関数においてミュータブルな変数は参照渡しのため
-import gc
+# import gc
 
 """
 log(x+y)の近似
@@ -46,8 +47,8 @@ def calc_up(q, p, back, a_a, b, state_set):
       if back.at[m, p.child.no] == 100: # あり得ない値（100）を発見
         print("100(unexpected value) found at up") # 計算していないbackを使っている状態
       # j is the p's eldest children (thus, j == p.child)
-      if total == 0: # 最初の値はそのまま代入
-        total = a_a[q][m] + back.at[m, p.child.no] # 対数なので足し算は掛け算
+      if total == 0 and m == state_set[0]: # 最初の値はそのまま代入
+        total += a_a[q][m] + back.at[m, p.child.no] # 対数なので足し算は掛け算
       else:
         total = copy.deepcopy(smoothmax(total, a_a[q][m] + back.at[m, p.child.no])) #totalは和なのでsmoothmaxにtotalを代入すればよい
     return b.at[q, p.name] + total
@@ -62,8 +63,8 @@ def calc_back(m, j, up, back, a_b, state_set):
   else:
     total = 0
     for l in state_set:
-      if total == 0: # 最初の値はそのまま代入
-        total = a_b[m][l] + back.at[l, j.younger.no] # 対数なので足し算は掛け算
+      if total == 0 and l == state_set[0]: # 最初の値はそのまま代入
+        total += a_b[m][l] + back.at[l, j.younger.no] # 対数なので足し算は掛け算
       else:
         total = copy.deepcopy(smoothmax(total, a_b[m][l] + back.at[l, j.younger.no])) #totalは和なのでsmoothmaxにtotalを代入すればよい
     return up.at[m, j.no] + total
@@ -105,16 +106,16 @@ def calc_likelihood(df, pi, a_a, a_b, b, state_set):
     
     like = 0
     for l in state_set:
-      if like == 0:
-        like = pi[l] + up.at[l, sugar_id[-1]] # 最もインデックスが大きい数（[-1]）は必ずルート
+      if like == 0 and l == state_set[0]:
+        like += pi[l] + up.at[l, sugar_id[-1]] # 最もインデックスが大きい数（[-1]）は必ずルート
       else:
         like = smoothmax(like, pi[l] + up.at[l, sugar_id[-1]])
     likelihood.append(like)
     i += 1
 
     # メモリリーク（対策）
-    del up, back
-    gc.collect()
+    # del up, back
+    # gc.collect()
   
   return likelihood
 
@@ -134,8 +135,8 @@ def calc_forward(l, j, down, forward, up, a_a, a_b, b, state_set):
     for q in state_set:
       if down.at[q, j.parent.no] == 100:
         print("100(unexpected value) found at forward!")
-      if total == 0:
-        total = a_a[q][l] + down.at[q, j.parent.no] + b.at[q, j.parent.name]
+      if total == 0 and q == state_set[0]:
+        total += a_a[q][l] + down.at[q, j.parent.no] + b.at[q, j.parent.name]
       else:
         total = copy.deepcopy(smoothmax(total, a_a[q][l] + down.at[q, j.parent.no] + b.at[q, j.parent.name]))
     return total
@@ -144,8 +145,8 @@ def calc_forward(l, j, down, forward, up, a_a, a_b, b, state_set):
     for m in state_set:
       if forward.at[m, j.elder.no] == 100:
         print("100(unexpected value) found at forward!!")
-      if total == 0:
-        total = a_b[m][l] + forward.at[m, j.elder.no] + up.at[m, j.elder.no] # 対数なので足し算は掛け算
+      if total == 0 and m == state_set[0]:
+        total += a_b[m][l] + forward.at[m, j.elder.no] + up.at[m, j.elder.no] # 対数なので足し算は掛け算
       else:
         total = copy.deepcopy(smoothmax(total, a_b[m][l] + forward.at[m, j.elder.no] + up.at[m, j.elder.no]))
     return total
@@ -164,8 +165,8 @@ def calc_down(l, j, forward, back, pi, a_b, state_set):
     for m in state_set:
       if forward.at[l, j.no] == 100:
         print("100(unexpected value) found at down!!")
-      if total == 0:
-        total = a_b[l][m] + back.at[m, j.younger.no] # 対数なので足し算は掛け算
+      if total == 0 and m == state_set[0]:
+        total += a_b[l][m] + back.at[m, j.younger.no] # 対数なので足し算は掛け算
       else:
         total = copy.deepcopy(smoothmax(total, a_b[l][m] + back.at[m, j.younger.no]))
     return forward.at[l, j.no] + total
@@ -258,8 +259,8 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
       i = glycan[0].no # optional
       # print(i)
       for l in state_set:
-        if L_u == 0:
-          L_u = up.at[l, i] + down.at[l, i]
+        if L_u == 0 and l == state_set[0]:
+          L_u += up.at[l, i] + down.at[l, i]
         else:
           L_u = smoothmax(L_u, up.at[l, i] + down.at[l, i])
         # if L_u2 == 0:
@@ -280,7 +281,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
               exist_child = True
               # p.child.no means j in the thesis of OTMM
               if total == 0:
-                total = down.at[q, p.no] + b.at[q, p.name] + a_a[q][l] + back.at[l, p.child.no]
+                total += down.at[q, p.no] + b.at[q, p.name] + a_a[q][l] + back.at[l, p.child.no]
               else:
                 total = copy.deepcopy(smoothmax(total, down.at[q, p.no] + b.at[q, p.name] + a_a[q][l] + back.at[l, p.child.no]))
           if exist_child == True or total != 0: # 本来total×L_uなのでtotal=0の時は0（対数変換によって掛け算が足し算になっている）
@@ -299,7 +300,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
               exist_younger = True
               # p.child.no means j in the thesis of OTMM
               if total == 0:
-                total = forward.at[q, j.no] + a_b[q][l] + back.at[l, j.younger.no] + up.at[q, j.no]
+                total += forward.at[q, j.no] + a_b[q][l] + back.at[l, j.younger.no] + up.at[q, j.no]
               else:
                 total = copy.deepcopy(smoothmax(total, forward.at[q, j.no] + a_b[q][l] + back.at[l, j.younger.no] + up.at[q, j.no]))
           if exist_younger == True or total != 0:
@@ -316,7 +317,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
             if i.name == o_h:
               exist_oh = True
               if total == 0:
-                total = down.at[m, i.no] + up.at[m, i.no]
+                total += down.at[m, i.no] + up.at[m, i.no]
               else:
                 total = copy.deepcopy(smoothmax(total, down.at[m, i.no] + up.at[m, i.no]))
           if exist_oh == True or total != 0:
@@ -336,7 +337,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
             mu_aa_t[q][l] += 0
           else:
             if  mu_aa_t[q][l] == 0:
-              mu_aa_t[q][l] = copy.deepcopy(mu_aa_u[q][l])
+              mu_aa_t[q][l] += copy.deepcopy(mu_aa_u[q][l])
             else:
               mu_aa_t[q][l] = copy.deepcopy(smoothmax(mu_aa_t[q][l], mu_aa_u[q][l]))
 
@@ -347,7 +348,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
             mu_ab_t[q][l] += 0
           else:
             if  mu_ab_t[q][l] == 0:
-              mu_ab_t[q][l] = copy.deepcopy(mu_ab_u[q][l])
+              mu_ab_t[q][l] += copy.deepcopy(mu_ab_u[q][l])
             else:
               mu_ab_t[q][l] = copy.deepcopy(smoothmax(mu_ab_t[q][l], mu_ab_u[q][l]))
 
@@ -358,7 +359,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
             mu_b_t.at[m, o_h] += 0
           else:
             if mu_b_t.at[m, o_h] == 0:
-              mu_b_t.at[m, o_h] = copy.deepcopy(mu_b_u.at[m, o_h])
+              mu_b_t.at[m, o_h] += copy.deepcopy(mu_b_u.at[m, o_h])
             else:
               mu_b_t.at[m, o_h] = copy.deepcopy(smoothmax(mu_b_t.at[m, o_h],  mu_b_u.at[m, o_h]))
 
@@ -368,14 +369,14 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
           mu_pi_t[m] += 0
         else:
           if mu_pi_t[m] == 0:
-            mu_pi_t[m] = copy.deepcopy(mu_pi_u[m])
+            mu_pi_t[m] += copy.deepcopy(mu_pi_u[m])
           else:
             mu_pi_t[m] = copy.deepcopy(smoothmax(mu_pi_t[m], mu_pi_u[m]))
       
-      # メモリの開放（メモリリーク対策）
-      del up, back, forward, down
-      del mu_pi_u, mu_aa_u, mu_ab_u, mu_b_u
-      gc.collect()
+      # # メモリの開放（メモリリーク対策）
+      # del up, back, forward, down
+      # del mu_pi_u, mu_aa_u, mu_ab_u, mu_b_u
+      # gc.collect()
       count += 1
 
     # update a_a
@@ -383,8 +384,8 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
     for q in state_set:
       denominator = 0
       for l_dash in state_set:
-        if denominator == 0:
-          denominator = copy.deepcopy(mu_aa_t[q][l_dash])
+        if denominator == 0 and l_dash == state_set[0]:
+          denominator += copy.deepcopy(mu_aa_t[q][l_dash])
         else:
           denominator = copy.deepcopy(smoothmax(denominator, mu_aa_t[q][l_dash]))
       for l in state_set:
@@ -396,8 +397,8 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
     for q in state_set:
       denominator = 0
       for l_dash in state_set:
-        if denominator == 0:
-          denominator = copy.deepcopy(mu_ab_t[q][l_dash])
+        if denominator == 0 and l_dash == state_set[0]:
+          denominator += copy.deepcopy(mu_ab_t[q][l_dash])
         else:
           denominator = copy.deepcopy(smoothmax(denominator, mu_ab_t[q][l_dash]))
       for l in state_set:
@@ -408,8 +409,8 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
     for m in state_set:
       denominator = 0
       for o_i in label_set:
-        if denominator == 0:
-          denominator = copy.deepcopy(mu_b_t.at[m, o_i])
+        if denominator == 0 and o_i == label_set[0]:
+          denominator += copy.deepcopy(mu_b_t.at[m, o_i])
         else:
           denominator = copy.deepcopy(smoothmax(denominator, mu_b_t.at[m, o_i]))
       for o_h in label_set:
@@ -422,8 +423,8 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
       numerator = copy.deepcopy(mu_pi_t[m])
       denominator = 0
       for k in state_set:
-        if denominator == 0:
-          denominator = copy.deepcopy(mu_pi_t[k])
+        if denominator == 0 and k == state_set[0]:
+          denominator += copy.deepcopy(mu_pi_t[k])
         else:
           denominator = copy.deepcopy(smoothmax(denominator, mu_pi_t[k]))
       pi[m] = numerator - denominator

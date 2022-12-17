@@ -2,14 +2,13 @@
 
 import numpy as np
 import pandas as pd
-import re
 import sys
-import gc
+# import gc
 import time
 import os
 import csv
 
-import preprocessor as pp
+import preprocessor_novelty as pp
 import algorism as alg
 # import algorism_decimal as alg
 # import algorism_round as alg
@@ -123,15 +122,8 @@ def main(argv):
   # indexを振りなおす
   df = df.reset_index(drop=True)
 
-  # タンパク質を消去
-  def delete_PROT(row):
-    if re.fullmatch(r'\(a[0-9]-|\(b[0-9]-$', row["IUPAC Condensed"][-4:]): # [-4:]は文字列の後ろから4文字まで
-      row["IUPAC Condensed"] = row["IUPAC Condensed"][:-4] # [:-4]は後ろから4文字を省いたテキスト
-
-    return row
-
   #1行ごとにdelete_PROT()を呼び出す
-  df = df.apply(delete_PROT, axis=1) # axis=1とすることで1行ずつの処理になる
+  df = df.apply(pp.delete_PROT, axis=1) # axis=1とすることで1行ずつの処理になる
 
 
   #1行ごとにseparate_structure()を呼び出す
@@ -152,20 +144,7 @@ def main(argv):
 
   df = df.apply(make_OTMM, axis=1)
 
-  def find_mark(row):
-    i = 0
-    glycan = row["IUPAC Condensed"]
-    for node in glycan:
-      # if node.child == None and node.elder == None: # 厳密にはyoungerがいるのでOTMMでは末端ではない
-      #   node.leaf_order = i
-      #   i += 1
-      if node.child == None and node.younger == None: # これが厳密な末端の葉
-        node.leaf_order = i
-        i += 1
-    row["IUPAC Condensed"] = glycan
-    return row
-
-  df = df.apply(find_mark, axis=1)
+  df = df.apply(pp.find_mark, axis=1)
 
   """アルゴリズム"""
   label_set = set()
@@ -231,9 +210,9 @@ def main(argv):
   L = sum(likelihood) # π（全てを掛け合わせる）なのでsumでよい
 
   """しきい値"""
-  epsilon = int(epsilon) # とりあえずこのくらい
+  epsilon = float(epsilon) # とりあえずこのくらい
 
-  gc.collect() # メモリの開放（メモリリーク対策）
+  # gc.collect() # メモリの開放（メモリリーク対策）
 
   print("\nLearning")
   new_pi, new_a_a, new_a_b, new_b, L_all = alg.EM(df, pi, a_a, a_b, b, state_set, label_set, L, epsilon)
