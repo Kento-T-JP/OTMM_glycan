@@ -256,7 +256,7 @@ def main(argv):
   print("β updated\n", new_a_b)
   print("b updated\n", new_b)
 
-  print("\nThe processing time in learning:", end-start)
+  print("\nThe processing time in learning:", end-start, "seconds")
 
   # 結果を格納するディレクトリを作成
   dir_path =  'result'+'_'+'novelty'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
