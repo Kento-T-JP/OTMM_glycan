@@ -1,6 +1,7 @@
 """
 主にlikelihoodとlearningで使用するアルゴリズム
 新規性のある研究も既存の研究もこの部分は同じ
+小数点の加算と減算しか処理が無いのでDecimal(固定小数点)で誤差を無くす
 """
 
 import math
@@ -244,6 +245,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
       down = pd.DataFrame(down, index=state_set, columns=sugar_id)
 
       # U, Bを計算する(7 to 9 of pseudo code)
+      # reversed(glycan)...bottom-up and right-to-left dynamic programming procedure
       for node in reversed(glycan):
         for state in state_set:
           # print(node.no)
@@ -251,6 +253,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
           back.at[state, node.no] = copy.deepcopy(calc_back(state, node, up, back, a_b, state_set))
 
       # D, Fを計算する(10 to 12 of pseudo code)
+      # glycan...top-down and left-to-right dynamic programming procedure
       for node in glycan:
         for state in state_set:
           # print(node.no)
