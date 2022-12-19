@@ -181,7 +181,7 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
   print("likelihood before learning", L, "\n")
   L_all.append(L)
 
-  # 参照渡しのため値を別のアドレス（変数）にコピー
+  # 参照渡しのため、値を別のアドレス（変数）にコピー
   pi = copy.deepcopy(pi_original)
   a_a = copy.deepcopy(a_a_original)
   a_b = copy.deepcopy(a_b_original)

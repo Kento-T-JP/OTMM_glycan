@@ -134,12 +134,11 @@ def main(argv):
 
   """
   データ量の制限
-  とりあえず正しく実行できれば良いので、データを201個に減らす。
   """
   if num_data == "max":
     df = df # データ全部
   else:
-    df = df.head(int(num_data)) # データを201個にしてみる
+    df = df.head(int(num_data))
   print("Number of data:", len(df))
 
   # プログラム的にIUPAC Condensedが2番目に来ること！（row[2]と記述している部分があるから）
@@ -163,7 +162,7 @@ def main(argv):
   print("Number of labels:", len(label_set))
   # print(label_set)
 
-  n = int(n) # とりあえず5個にした（状態の数については先生と要相談）
+  n = int(n)
   state_set = set()
   for i in range(n):
     state_set.add(i)
@@ -278,7 +277,7 @@ def main(argv):
   viterbiアルゴリズムで経路探索
   """
   print("\nParsing")
-  # 解析する糖鎖を1つ選ぶ
+  # 解析する糖鎖を1つ選ぶ（今回はcsvファイルの先頭の糖鎖）
   glycan = df["IUPAC Condensed"][0] # glycan[0]
   # ParsingにDecimalが扱えない処理があるのでfloatに変換
   new_pi = np.float_(new_pi)
