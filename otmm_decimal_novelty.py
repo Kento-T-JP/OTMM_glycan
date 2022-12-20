@@ -210,6 +210,7 @@ def main(argv):
       a_b[i][j] = Decimal(str(float(a_b[i][j])))
 
   """ラベル出力確率分布 B"""
+  np.random.seed(seed=3)
   matrix_B = np.random.rand(len(state_set), len(label_set))
   matrix_B = matrix_B/matrix_B.sum(axis=1).reshape(-1, 1)
   """対数変換"""
