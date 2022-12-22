@@ -2,22 +2,15 @@
 
 import numpy as np
 import pandas as pd
-import re
 import sys
 # import gc
 import time
 import os
 import csv
-from decimal import Decimal
 
-import preprocessor_novelty as pp
-# import algorism as alg
-import algorism_decimal as alg
-# import algorism_decimal_all as alg
-# import algorism_round as alg
-# import algorism_int as alg
+import preprocessor_existing as pp
+import algorism as alg
 import parsing
-# import parsing_decimal as parsing
 
 """Class Node"""
 class Node:
@@ -108,7 +101,7 @@ def main(argv):
   """データの前処理"""
   # データをdfに読み込み
   # 必ずGoogleColabにglycan_data.csvをアップロードすること
-  df = pd.read_csv("glycan_data.csv") # 細田先生から頂いたデータ
+  df = pd.read_csv("glycan_data.csv") # 木下研から頂いたデータ
 
   # データが無い行を消去
   df = df.dropna(subset=['IUPAC Condensed'])
@@ -158,6 +151,11 @@ def main(argv):
 
   # pandas1.5以上はlistに
   label_set = list(label_set)
+  # local環境ではソートしないと実行するごとに順番が変わってしまう
+  # Google colabではset型でも順番は一定
+  label_set = sorted(label_set)
+
+  # print(label_set)
 
   print("Number of labels:", len(label_set))
   # print(label_set)
@@ -180,10 +178,6 @@ def main(argv):
   pi = pi/pi.sum()
   """対数変換"""
   pi = np.log(pi)
-  """Decimal型に"""
-  pi = pi.tolist()
-  for i in range(len(pi)):
-    pi[i] = Decimal(str(float(pi[i])))
 
   """状態遷移確率 A
   parent - node(me) ・・・ A_a
@@ -193,10 +187,6 @@ def main(argv):
   a_a = a_a/a_a.sum(axis=1).reshape(-1, 1)
   """対数変換"""
   a_a = np.log(a_a)
-  a_a = a_a.tolist()
-  for i in range(len(a_a)):
-    for j in range(len(a_a[i])):
-      a_a[i][j] = Decimal(str(float(a_a[i][j])))
 
   """elder - node(me) ・・・A_b"""
   np.random.seed(seed=2)
@@ -204,10 +194,6 @@ def main(argv):
   a_b = a_b/a_b.sum(axis=1).reshape(-1, 1)
   """対数変換"""
   a_b = np.log(a_b)
-  a_b = a_b.tolist()
-  for i in range(len(a_b)):
-    for j in range(len(a_b[i])):
-      a_b[i][j] = Decimal(str(float(a_b[i][j])))
 
   """ラベル出力確率分布 B"""
   np.random.seed(seed=3)
@@ -215,10 +201,6 @@ def main(argv):
   matrix_B = matrix_B/matrix_B.sum(axis=1).reshape(-1, 1)
   """対数変換"""
   matrix_B = np.log(matrix_B)
-  matrix_B = matrix_B.tolist()
-  for i in range(len(matrix_B)):
-    for j in range(len(matrix_B[i])):
-      matrix_B[i][j] = Decimal(str(float(matrix_B[i][j])))
   b = pd.DataFrame(matrix_B, index=state_set, columns=label_set)
 
   """初期の尤度"""
@@ -230,12 +212,11 @@ def main(argv):
   """しきい値"""
   epsilon = float(epsilon) # とりあえずこのくらい
 
-  # gc.collect() # メモリの開放（メモリリーク対策）
+#   gc.collect() # メモリの開放（メモリリーク対策）
 
   print("\nLearning")
   new_pi, new_a_a, new_a_b, new_b, L_all = alg.EM(df, pi, a_a, a_b, b, state_set, label_set, L, epsilon)
   end = time.perf_counter()
-  print()
 
   print("\nEnd time.perf_counter()\n")
   print("pi updated\n", new_pi)
@@ -246,7 +227,7 @@ def main(argv):
   print("\nThe processing time in learning:", end-start, "seconds")
 
   # 結果を格納するディレクトリを作成
-  dir_path =  'result'+'_'+'novelty'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
+  dir_path =  'result'+'_'+'existing'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
   os.makedirs(dir_path, exist_ok=True)
   os.chdir(dir_path)  # 相対パス
 
@@ -280,11 +261,6 @@ def main(argv):
   print("\nParsing")
   # 解析する糖鎖を1つ選ぶ（今回はcsvファイルの先頭の糖鎖）
   glycan = df["IUPAC Condensed"][0] # glycan[0]
-  # ParsingにDecimalが扱えない処理があるのでfloatに変換
-  new_pi = np.float_(new_pi)
-  new_a_a = np.float_(new_a_a)
-  new_a_b = np.float_(new_a_b)
-  new_b = new_b.astype('float64')
   parsing.parse_glycan(glycan, state_set, new_pi, new_a_a, new_a_b, new_b)
 
   return 0

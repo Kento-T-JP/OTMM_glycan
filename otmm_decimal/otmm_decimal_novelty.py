@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import re
 import sys
 # import gc
 import time
@@ -10,7 +9,7 @@ import os
 import csv
 from decimal import Decimal
 
-import preprocessor_existing as pp
+import preprocessor_novelty as pp
 # import algorism as alg
 import algorism_decimal as alg
 # import algorism_decimal_all as alg
@@ -158,6 +157,11 @@ def main(argv):
 
   # pandas1.5以上はlistに
   label_set = list(label_set)
+  # local環境ではソートしないと実行するごとに順番が変わってしまう
+  # Google colabではset型でも順番は一定
+  label_set = sorted(label_set)
+
+  # print(label_set)
 
   print("Number of labels:", len(label_set))
   # print(label_set)
@@ -246,7 +250,7 @@ def main(argv):
   print("\nThe processing time in learning:", end-start, "seconds")
 
   # 結果を格納するディレクトリを作成
-  dir_path =  'result'+'_'+'existing'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
+  dir_path =  'result'+'_'+'novelty'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
   os.makedirs(dir_path, exist_ok=True)
   os.chdir(dir_path)  # 相対パス
 

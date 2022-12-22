@@ -10,9 +10,6 @@ import csv
 
 import preprocessor_novelty as pp
 import algorism as alg
-# import algorism_decimal as alg
-# import algorism_round as alg
-# import algorism_int as alg
 import parsing
 
 """Class Node"""
@@ -104,7 +101,7 @@ def main(argv):
   """データの前処理"""
   # データをdfに読み込み
   # 必ずGoogleColabにglycan_data.csvをアップロードすること
-  df = pd.read_csv("glycan_data.csv") # 細田先生から頂いたデータ
+  df = pd.read_csv("glycan_data.csv") # 木下研から頂いたデータ
 
   # データが無い行を消去
   df = df.dropna(subset=['IUPAC Condensed'])
@@ -131,12 +128,11 @@ def main(argv):
 
   """
   データ量の制限
-  とりあえず正しく実行できれば良いので、データを201個に減らす。
   """
   if num_data == "max":
     df = df # データ全部
   else:
-    df = df.head(int(num_data)) # データを201個にしてみる
+    df = df.head(int(num_data))
   print("Number of data:", len(df))
 
   # プログラム的にIUPAC Condensedが2番目に来ること！（row[2]と記述している部分があるから）
@@ -156,11 +152,17 @@ def main(argv):
 
   # pandas1.5以上はlistに
   label_set = list(label_set)
+  # local環境ではソートしないと実行するごとに順番が変わってしまう
+  # Google colabではset型でも順番は一定
+  label_set = sorted(label_set)
+
+
+  print(label_set)
 
   print("Number of labels:", len(label_set))
   # print(label_set)
 
-  n = int(n) # とりあえず5個にした（状態の数については先生と要相談）
+  n = int(n)
   state_set = set()
   for i in range(n):
     state_set.add(i)
@@ -217,6 +219,7 @@ def main(argv):
   print("\nLearning")
   new_pi, new_a_a, new_a_b, new_b, L_all = alg.EM(df, pi, a_a, a_b, b, state_set, label_set, L, epsilon)
   end = time.perf_counter()
+  print()
 
   print("\nEnd time.perf_counter()\n")
   print("pi updated\n", new_pi)
@@ -224,7 +227,7 @@ def main(argv):
   print("β updated\n", new_a_b)
   print("b updated\n", new_b)
 
-  print("\nThe processing time in learning:", end-start)
+  print("\nThe processing time in learning:", end-start, "seconds")
 
   # 結果を格納するディレクトリを作成
   dir_path =  'result'+'_'+'novelty'+'_'+str(len(df))+'_'+str(epsilon)+'_'+str(len(state_set))+'_'+str(len(label_set))
@@ -259,7 +262,7 @@ def main(argv):
   viterbiアルゴリズムで経路探索
   """
   print("\nParsing")
-  # 解析する糖鎖を1つ選ぶ
+  # 解析する糖鎖を1つ選ぶ（今回はcsvファイルの先頭の糖鎖）
   glycan = df["IUPAC Condensed"][0] # glycan[0]
   parsing.parse_glycan(glycan, state_set, new_pi, new_a_a, new_a_b, new_b)
 

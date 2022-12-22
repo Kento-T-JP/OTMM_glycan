@@ -177,6 +177,9 @@ def main(argv):
 
   # pandas1.5以上はlistに
   label_set = list(label_set)
+  # local環境ではソートしないと実行するごとに順番が変わってしまう
+  # Google colabではset型でも順番は一定
+  label_set = sorted(label_set)
 
   print("Number of labels:", len(label_set))
   # print(label_set)
