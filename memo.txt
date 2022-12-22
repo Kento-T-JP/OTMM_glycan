@@ -3,8 +3,11 @@ Google Colaboratoryの実行結果はCPUなどの環境がすべて同じとは�
 Google Colaboratoryの実行時間は参考程度にすること！
 
 ＜ColabのURL＞
-既存：https://colab.research.google.com/drive/1z-c2fnQibBlZ4SGiBC6OIdMJlWbGFrcI?hl=ja#scrollTo=oiJY2CP20jr1
-新規性：https://colab.research.google.com/drive/1pmzjWbAWQZyHgYzDvLAYFDdx67mWt-IF?hl=ja#scrollTo=oiJY2CP20jr1
+既存（decimal）：https://colab.research.google.com/drive/130CdhlMineACDbJSP5xaO0FEa-QS6-G_?hl=ja
+新規性（decimal）：https://colab.research.google.com/drive/1ykwZ9g5ayGOotq1dbKXsuRPN6D8cPP8Z?hl=ja#scrollTo=oiJY2CP20jr1
+
+既存（float）：https://colab.research.google.com/drive/1z-c2fnQibBlZ4SGiBC6OIdMJlWbGFrcI?hl=ja#scrollTo=oiJY2CP20jr1
+新規性（float）：https://colab.research.google.com/drive/1pmzjWbAWQZyHgYzDvLAYFDdx67mWt-IF?hl=ja#scrollTo=oiJY2CP20jr1
 
 また、データ数のmaxは5195である。
 
@@ -54,5 +57,5 @@ delとかgc.collect()とかを消去するとめっちゃ速い。
 今後は、set型などプリミティブではない型を使用するときは、予測不能な動作をすることを念頭に置いて、その特性をよく理解しよう。
 
 ＜留意事項＞
-問題の解決によりDecimal型を使ってまで精度を保つ必要性が無くなったので今後はfloat型で実行する。
-decimalと明記されていない場合は、float型での実行となる。
+精度の担保のためdecimal型を使う。
+floatと断りの無い結果は全てdecimal型である。
