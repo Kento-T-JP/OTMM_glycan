@@ -215,13 +215,14 @@ def EM(df, pi_original, a_a_original, a_b_original, b_original, state_set, label
       mu_b_u = pd.DataFrame(B_u, index=state_set, columns=label_set)
       mu_pi_u = np.zeros(len(state_set))
 
-      # make upward prob
-      up = np.zeros((len(state_set), len(glycan)))
       # 識別子で区別する
       sugar_id = []
       for sugar in glycan:
         sugar_id.append(sugar.no)
       sugar_id = sorted(sugar_id)
+
+      # make upward prob
+      up = np.zeros((len(state_set), len(glycan)))
       up = pd.DataFrame(up, index=state_set, columns=sugar_id)
       up = up.replace(to_replace=0,value=100) # 初期値にはあり得ない値（100）を入れておく
       
