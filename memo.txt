@@ -2,6 +2,10 @@ Google Colaboratoryの実行結果はCPUなどの環境がすべて同じとは�
 
 Google Colaboratoryの実行時間は参考程度にすること！
 
+＜ColabのURL＞
+既存：https://colab.research.google.com/drive/1z-c2fnQibBlZ4SGiBC6OIdMJlWbGFrcI?hl=ja#scrollTo=oiJY2CP20jr1
+新規性：https://colab.research.google.com/drive/1pmzjWbAWQZyHgYzDvLAYFDdx67mWt-IF?hl=ja#scrollTo=oiJY2CP20jr1
+
 また、データ数のmaxは5195である。
 
 学習のエポック数（繰り返し数）は「likelihoodの数-1」である（最初の尤度は初期確率分布の尤度）。
