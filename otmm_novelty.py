@@ -157,7 +157,7 @@ def main(argv):
   label_set = sorted(label_set)
 
 
-  print(label_set)
+  # print(label_set)
 
   print("Number of labels:", len(label_set))
   # print(label_set)
