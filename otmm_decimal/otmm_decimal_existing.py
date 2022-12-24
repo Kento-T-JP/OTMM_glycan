@@ -170,7 +170,7 @@ def main(argv):
   state_set = []
   for i in range(n):
     state_set.append(i)
-  print(state_set)
+  # print(state_set)
 
   # pandas1.5以上はlistに
   state_set = list(state_set)
