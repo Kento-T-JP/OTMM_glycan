@@ -167,9 +167,9 @@ def main(argv):
   # print(label_set)
 
   n = int(n)
-  state_set = set()
+  state_set = []
   for i in range(n):
-    state_set.add(i)
+    state_set.append(i)
 
   # pandas1.5以上はlistに
   state_set = list(state_set)
