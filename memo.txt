@@ -15,6 +15,7 @@ Google Colaboratoryの実行時間は参考程度にすること！
 
 ＜用語＞
 ColabFree・・・Google Colaboratoryの無料プランでの実行結果
+ColabPP・・・Google Colaboratoryの有料プラン Pro Plusでの実行結果
 
 ＜注意＞
 コンピュータでの計算ではビットを使っていることやlog(x+y)で近似を使っていることから、誤差によって確率がわずかに1を超える場合がある。
