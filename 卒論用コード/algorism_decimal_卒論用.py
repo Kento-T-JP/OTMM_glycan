@@ -83,6 +83,7 @@ def calc_likelihood(df, pi, a_a, a_b, b, state_set):
     back = [[Decimal(str(100))] * len(glycan) for i in [Decimal(str(100))] * len(state_set)]
     back = pd.DataFrame(back, index=state_set, columns=sugar_id)
 
+    # calculate up and back
     for node in reversed(glycan):
       for state in state_set:
         up.at[state, node.no] = copy.deepcopy(calc_up(state, node, back, a_a, b, state_set))

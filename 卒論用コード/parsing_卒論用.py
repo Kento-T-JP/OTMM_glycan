@@ -24,7 +24,6 @@ def parse_glycan(glycan, state_set, pi, a_a, a_b, b):
     # bottom-up and right-to-left dynamic programming procedure
     for node in reversed(glycan):
         for state in state_set:
-            # print(node.no)
             phi_up.at[state, node.no] = calc_phi_up(state, node, phi_back, a_a, b, state_set)
             phi_back.at[state, node.no] = calc_phi_back(state, node, phi_up, phi_back, a_b, state_set)
 
@@ -77,7 +76,6 @@ def psi_up(q, p, phi_back, a_a, state_set):
         print("Unexpected value at psi up") # 計算していないbackを使っている状態
       # Σの部分をargmaxに
       # j is the p's eldest children (thus, j == p.child)
-      # print(q, m, p.child.no)
       prob = np.insert(prob, m, a_a[q][m] + phi_back.at[m, p.child.no]) # 対数なので足し算は掛け算
     return np.argmax(prob) # m represents a state and return it
 
@@ -105,7 +103,6 @@ def most_likely_state(glycan, state_set, sugar_id, pi, a_a, a_b, b, phi_up, phi_
   z = dict()
   # top-down and left-to-right manner
   for node in glycan:
-    # print(node.no)
     if node.no == sugar_id[-1]: # root
       prob = np.empty(0)
       for l in state_set:

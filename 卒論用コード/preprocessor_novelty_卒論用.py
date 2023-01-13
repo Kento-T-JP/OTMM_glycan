@@ -6,7 +6,7 @@ class Node:
   def __init__(self, no, name, child, child_num):
     # nodesリストのインデックスがorderになっているのでorderは属性に入れない
     self.no = no # position of the text glycan data
-    self.name = name # 結合情報を入れる
+    self.name = name # 単糖+結合様式
 
     self.elder = None # left (immediately elder sibling)
     self.elder_num = None
@@ -20,7 +20,7 @@ class Node:
     self.child = [] # down
     self.child.append(child)
 
-    self.child_num = [] # to from OTMM structure
+    self.child_num = []
     self.child_num.append(child_num)
 
   def add_order(self, order):
@@ -153,13 +153,13 @@ def get_structure(result):
           if node.no == i_parent:
             node.add_child(result[i-2], i-2)
         # print(result[i-2], i-2, "←", parent,i_parent,  "☆bond:", result[i-1])
-        # print("＜branch終わり＞\n")
+        # print("＜branch終わり＞")
     i -= 1
   return nodes
 
 # get_structureで使う関数
 def branch(result, j, nodes, parent_index, parent, j_parent):
-  # print("\n＜branch始まり＞")
+  # print("＜branch始まり＞")
   start = j
   while result[j] != "[":
     # 分岐中の親子関係を記述
@@ -194,7 +194,7 @@ def branch(result, j, nodes, parent_index, parent, j_parent):
       else: # 1つ目の分岐のとき
         parent = result[j+1] # 1つ右が親（参照渡しを利用してglobalに影響を与える）
         j_parent = j+1 # 1つ右が親（参照渡しを利用してglobalに影響を与える）
-      # print("\n＜新たなbranch＞")
+      # print("＜新たなbranch＞")
       j, parent_index = branch(result, j, nodes, parent_index, parent, j_parent) # 再帰
       j -= 1 # この処理で再帰後のresult[j]は[になり、次のif文に引っかからなくなる
 

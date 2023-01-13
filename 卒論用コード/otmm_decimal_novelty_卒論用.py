@@ -97,9 +97,7 @@ def main(argv):
   #1行ごとにseparate_structure()を呼び出す
   df = df.apply(pp.separate_structure, axis=1) # axis=1とすることで1行ずつの処理になる
 
-  """
-  データ量の制限
-  """
+  """データ量の制限"""
   if num_data == "max":
     df = df # データ全部
   else:
@@ -155,7 +153,8 @@ def main(argv):
   for i in range(len(pi)):
     pi[i] = Decimal(str(float(pi[i])))
 
-  """状態遷移確率 A
+  """
+  状態遷移確率 A
   parent - node(me) ・・・ A_a
   """
   np.random.seed(seed=1)
@@ -198,9 +197,7 @@ def main(argv):
   L = sum(likelihood) # π（全てを掛け合わせる）なのでsumでよい
 
   """しきい値"""
-  epsilon = float(epsilon) # とりあえずこのくらい
-
-  # gc.collect() # メモリの開放（メモリリーク対策）
+  epsilon = float(epsilon)
 
   print("\nLearning")
   new_pi, new_a_a, new_a_b, new_b, L_all = alg.EM(df, pi, a_a, a_b, b, state_set, label_set, L, epsilon)
