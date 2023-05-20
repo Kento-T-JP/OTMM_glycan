@@ -1,9 +1,11 @@
 # Glycan
 This is a repository regarding OTMM(Ordered Tree Markov Model) in glycoinfomatics.
 
-All of the programs are written in Python.
+All of the programs are written in Python by myself.
 
 Used for the senior thesis.
+
+If you are interested in source code, please take a look at "卒論掲載コード".
 
 # 実行結果の説明
 各csvファイルとtxtファイルが実行結果になります。
